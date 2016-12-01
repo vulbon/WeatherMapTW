@@ -41,8 +41,8 @@ $(document).ready(function () {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
                         map.setView([position.coords.latitude, position.coords.longitude], 16);
-                        geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
                         geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
+                        geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
                     });
                 }
             });
