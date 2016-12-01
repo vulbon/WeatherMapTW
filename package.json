@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "Set NODE_ENV=production&gulp&node ./www",
-    "debug": "gulp"
+    "debug": "gulp",
+    "publish": "Set NODE_ENV=production&gulp"
   },
   "keywords": [
     "map",
