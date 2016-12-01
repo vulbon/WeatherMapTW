@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "Set NODE_ENV=production&gulp&node ./www",
+    "prestart": "Set NODE_ENV=production&gulp",
+    "start": "node ./www",
     "debug": "gulp"
   },
   "keywords": [

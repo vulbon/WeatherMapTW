@@ -26,7 +26,7 @@ gulp.task('map', function () {
         return gulp.src(map) // path to your files
             .pipe(concat('app.js'))
             .pipe(uglify())
-            .pipe(gulp.dest('./public/javascripts/'));
+            .pipe(gulp.dest('./public/js/'));
     } else {
         var map = [
             "map.js"
@@ -36,13 +36,12 @@ gulp.task('map', function () {
 
         return gulp.src(map) // path to your files
             .pipe(concat('app.js'))
-            .pipe(gulp.dest('./public/javascripts/'));
+            .pipe(gulp.dest('./public/js/'));
     }
 });
 
 gulp.task('sass', function () {
     //main
-
     var scss = [
         "map.scss"
     ].map(function (script) {
@@ -52,7 +51,7 @@ gulp.task('sass', function () {
     return gulp.src(scss) // path to your file
         .pipe(sass().on('error', sass.logError))
         .pipe(minifyCss())
-        .pipe(gulp.dest('./public/stylesheets/'));
+        .pipe(gulp.dest('./public/style/'));
 });
 
 gulp.task("html", function () {
