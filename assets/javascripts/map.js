@@ -26,8 +26,8 @@ $(document).ready(function () {
         var triggerButton = L.DomUtil.create("div", "leaflet-bar");
         triggerButton.style.backgroundImage = "url(style/images/geolocation.png)";
         triggerButton.style.backgroundSize = "20px 20px";
-        triggerButton.style.width = "30px";
-        triggerButton.style.height = "30px";
+        triggerButton.style.width = "26px";
+        triggerButton.style.height = "26px";
         triggerButton.style.backgroundRepeat = "no-repeat";
         triggerButton.style.backgroundPosition = "center";
         triggerButton.style.backgroundColor = "white";
@@ -93,5 +93,48 @@ $(document).ready(function () {
         },
         layers: L.layerGroup().addTo(map)
     };
+
+    //右邊的側邊攔
+    var rightPanels = L.control.sidebar("right_panels", {
+        closeButton: true,
+        autoPan: false,
+        position: "right"
+    }).on('hide', function () {
+        rightMenuButton.opened = false;
+    }).on('show', function () {
+        rightMenuButton.opened = true;
+    });
+    map.addControl(rightPanels);
+
+    // left menu button
+    var rightMenuButton = {
+        control: L.control({ position: "topright" }),
+        opened: false
+    };
+    rightMenuButton.control.onAdd = function (map) {
+        var triggerButton = L.DomUtil.create("div", "leaflet-bar");
+        triggerButton.style.backgroundImage = "url(style/images/menu.png)";
+        triggerButton.style.backgroundSize = "20px 20px";
+        triggerButton.style.width = "26px";
+        triggerButton.style.height = "26px";
+        triggerButton.style.backgroundRepeat = "no-repeat";
+        triggerButton.style.backgroundPosition = "center";
+        triggerButton.style.backgroundColor = "white";
+        triggerButton.style.cursor = "pointer";
+
+        L.DomEvent
+            .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
+            .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
+            .addListener(triggerButton, 'click', function () {
+                if (rightMenuButton.opened) {
+                    rightPanels.hide();
+                } else {
+                    rightPanels.show();
+                }
+            });
+
+        return triggerButton;
+    }
+    rightMenuButton.control.addTo(map);
 
 });
