@@ -26,8 +26,8 @@ $(document).ready(function () {
         var triggerButton = L.DomUtil.create("div", "leaflet-bar");
         triggerButton.style.backgroundImage = "url(style/images/geolocation.png)";
         triggerButton.style.backgroundSize = "20px 20px";
-        triggerButton.style.width = "26px";
-        triggerButton.style.height = "26px";
+        triggerButton.style.width = "30px";
+        triggerButton.style.height = "30px";
         triggerButton.style.backgroundRepeat = "no-repeat";
         triggerButton.style.backgroundPosition = "center";
         triggerButton.style.backgroundColor = "white";
@@ -115,8 +115,8 @@ $(document).ready(function () {
         var triggerButton = L.DomUtil.create("div", "leaflet-bar");
         triggerButton.style.backgroundImage = "url(style/images/menu.png)";
         triggerButton.style.backgroundSize = "20px 20px";
-        triggerButton.style.width = "26px";
-        triggerButton.style.height = "26px";
+        triggerButton.style.width = "30px";
+        triggerButton.style.height = "30px";
         triggerButton.style.backgroundRepeat = "no-repeat";
         triggerButton.style.backgroundPosition = "center";
         triggerButton.style.backgroundColor = "white";
