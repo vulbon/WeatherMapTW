@@ -11,6 +11,16 @@ var Weather = require("./bin/Weather");
 var app = express();
 app.use(compression());
 
+/* At the top, with other redirect methods before other routes */
+if (process.env.PORT) {
+	app.get('*', function (req, res, next) {
+		if (req.headers['x-forwarded-proto'] != 'https')
+			res.redirect('https://WeatherMapTW.herokuapp.com' + req.url)
+		else
+			next() /* Continue to other routes if we're not redirecting */
+	});
+}
+
 app.get(["/api/:name", "/api/:name/*"], function (req, res) {
 	var functionName = req.params.name.toLowerCase();
 	var query = req.query;
@@ -63,9 +73,8 @@ function xml2jsonFromURL(url, res) {
 							var startTime = moment(time[k].startTime[0]).format("YYYY-MM-DDTmm:HH:ss");
 							var endTime = moment(time[k].endTime[0]).format("YYYY-MM-DDTmm:HH:ss");
 
-							console.log(locationName, wxName, startTime, endTime,time[k].parameter[0]);
+							console.log(locationName, wxName, startTime, endTime, time[k].parameter[0]);
 						}
-
 					}
 				}
 				res.end(JSON.stringify(output).replace(/\\n|\r?\n|\r|\s/g, ''));

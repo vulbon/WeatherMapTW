@@ -51,12 +51,7 @@ $(document).ready(function () {
         triggerButton.style.backgroundColor = "white";
         triggerButton.style.cursor = "pointer";
 
-        L.DomEvent
-            // .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
-            // .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
-            .addListener(triggerButton, 'click', function (e) {
-                L.DomEvent.stopPropagation(e);
-                L.DomEvent.preventDefault(e);
+        L.DomEvent.addListener(triggerButton, 'click', function (e) {
                 //geolocation
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
