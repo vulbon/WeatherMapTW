@@ -3,6 +3,7 @@ var path = require("path");
 var compression = require("compression");
 var request = require('request');
 var xml2json = require("xml2js").parseString;
+var moment = require("moment");
 
 var Common = require("./bin/Common");
 var Weather = require("./bin/Weather");
@@ -40,7 +41,34 @@ function xml2jsonFromURL(url, res) {
 				res.writeHead(200, {
 					"Content-Type": "application/json; charset=utf-8"
 				});
-				res.end(JSON.stringify(result).replace(/\\n|\r?\n|\r|\s/g, ''));
+
+				// rearrange data
+				// weather element => datetime => conunty
+
+				var dataset = result.cwbopendata.dataset[0];
+
+				var output = {};
+				output.datasetInfo = dataset.datasetInfo;
+
+				for (var i = 0, ii = dataset.location.length; i < ii; i++) {
+
+					var locationName = dataset.location[i].locationName[0];
+
+					var wx = dataset.location[i].weatherElement;
+					for (var j = 0, jj = wx.length; j < jj; j++) {
+						var wxName = wx[j].elementName[0];
+
+						var time = wx[j].time;
+						for (var k = 0, kk = time.length; k < kk; k++) {
+							var startTime = moment(time[k].startTime[0]).format("YYYY-MM-DDTmm:HH:ss");
+							var endTime = moment(time[k].endTime[0]).format("YYYY-MM-DDTmm:HH:ss");
+
+							console.log(locationName, wxName, startTime, endTime,time[k].parameter[0]);
+						}
+
+					}
+				}
+				res.end(JSON.stringify(output).replace(/\\n|\r?\n|\r|\s/g, ''));
 				Common.logWithDatetime("Got OpenData", url);
 			});
 		}

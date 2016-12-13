@@ -1,20 +1,38 @@
 $(document).ready(function () {
     // map
     var mapBounds = L.latLngBounds(L.latLng(21.88, 118.12), L.latLng(25.44, 122.49));
+
+
+    var tileLayers = {
+        nlscEmap: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=EMAP&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
+            maxZoom: 19,
+            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>臺灣通用電子地圖"
+        }),
+        nlscImage: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=PHOTO2&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
+            maxZoom: 19,
+            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>正射影像"
+        }),
+        osm: L.tileLayer("http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
+            subdomains: "abc",
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a>'
+        })
+    };
+
     var map = L.map('map', {
-        attributionControl: false,
-        zoomControl: false
+        attributionControl: true,
+        zoomControl: false,
+        layers: tileLayers.nlscEmap
     }).fitBounds(mapBounds);
+    L.control.layers({
+        "臺灣通用電子地圖": tileLayers.nlscEmap,
+        "正射影像": tileLayers.nlscImage,
+        "OpenStreetMap-Cycle":tileLayers.osm
+    }, null).addTo(map);
 
     // move zoom controller to bottom right
     L.control.zoom({
         position: "bottomright"
     }).addTo(map);
-
-    var tileLayer = L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=EMAP&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
-        maxZoom: 19
-    })
-    map.addLayer(tileLayer);
 
     // 定位
     // 因為這個搞https搞了好久啊!!
@@ -34,9 +52,11 @@ $(document).ready(function () {
         triggerButton.style.cursor = "pointer";
 
         L.DomEvent
-            .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
-            .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
-            .addListener(triggerButton, 'click', function () {
+            // .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
+            // .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
+            .addListener(triggerButton, 'click', function (e) {
+                L.DomEvent.stopPropagation(e);
+                L.DomEvent.preventDefault(e);
                 //geolocation
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
@@ -95,46 +115,46 @@ $(document).ready(function () {
     };
 
     //右邊的側邊攔
-    var rightPanels = L.control.sidebar("right_panels", {
-        closeButton: true,
-        autoPan: false,
-        position: "right"
-    }).on('hide', function () {
-        rightMenuButton.opened = false;
-    }).on('show', function () {
-        rightMenuButton.opened = true;
-    });
-    map.addControl(rightPanels);
+    // var rightPanels = L.control.sidebar("right_panels", {
+    //     closeButton: true,
+    //     autoPan: false,
+    //     position: "right"
+    // }).on('hide', function () {
+    //     rightMenuButton.opened = false;
+    // }).on('show', function () {
+    //     rightMenuButton.opened = true;
+    // });
+    // map.addControl(rightPanels);
 
-    // left menu button
-    var rightMenuButton = {
-        control: L.control({ position: "topright" }),
-        opened: false
-    };
-    rightMenuButton.control.onAdd = function (map) {
-        var triggerButton = L.DomUtil.create("div", "leaflet-bar");
-        triggerButton.style.backgroundImage = "url(style/images/menu.png)";
-        triggerButton.style.backgroundSize = "20px 20px";
-        triggerButton.style.width = "30px";
-        triggerButton.style.height = "30px";
-        triggerButton.style.backgroundRepeat = "no-repeat";
-        triggerButton.style.backgroundPosition = "center";
-        triggerButton.style.backgroundColor = "white";
-        triggerButton.style.cursor = "pointer";
+    // // right menu button
+    // var rightMenuButton = {
+    //     control: L.control({ position: "topright" }),
+    //     opened: false
+    // };
+    // rightMenuButton.control.onAdd = function (map) {
+    //     var triggerButton = L.DomUtil.create("div", "leaflet-bar");
+    //     triggerButton.style.backgroundImage = "url(style/images/menu.png)";
+    //     triggerButton.style.backgroundSize = "20px 20px";
+    //     triggerButton.style.width = "30px";
+    //     triggerButton.style.height = "30px";
+    //     triggerButton.style.backgroundRepeat = "no-repeat";
+    //     triggerButton.style.backgroundPosition = "center";
+    //     triggerButton.style.backgroundColor = "white";
+    //     triggerButton.style.cursor = "pointer";
 
-        L.DomEvent
-            .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
-            .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
-            .addListener(triggerButton, 'click', function () {
-                if (rightMenuButton.opened) {
-                    rightPanels.hide();
-                } else {
-                    rightPanels.show();
-                }
-            });
+    //     L.DomEvent
+    //         .addListener(triggerButton, 'click', L.DomEvent.stopPropagation)
+    //         .addListener(triggerButton, 'click', L.DomEvent.preventDefault)
+    //         .addListener(triggerButton, 'click', function () {
+    //             if (rightMenuButton.opened) {
+    //                 rightPanels.hide();
+    //             } else {
+    //                 rightPanels.show();
+    //             }
+    //         });
 
-        return triggerButton;
-    }
-    rightMenuButton.control.addTo(map);
+    //     return triggerButton;
+    // }
+    // rightMenuButton.control.addTo(map);
 
 });

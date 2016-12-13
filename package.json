@@ -6,7 +6,8 @@
   "scripts": {
     "start": "Set NODE_ENV=production&gulp&node ./www",
     "debug": "gulp",
-    "publish": "Set NODE_ENV=production&gulp"
+    "publish": "Set NODE_ENV=production&gulp",
+    "data": "node ./www"
   },
   "keywords": [
     "map",
@@ -29,6 +30,7 @@
   "dependencies": {
     "compression": "^1.6.2",
     "express": "^4.14.0",
+    "moment": "^2.17.1",
     "request": "^2.79.0",
     "xml2js": "^0.4.17"
   }
