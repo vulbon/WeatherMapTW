@@ -20,14 +20,13 @@ $(document).ready(function() {
         gsm: L.tileLayer('http://mt{s}.google.com/vt/x={x}&y={y}&z={z}', {
             subdomains: '0123',
             maxZoom: 20,
-            attribution: 'Map data &copy; Google'
+            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleStreetMap</a>"
         }),
         gim: L.tileLayer('http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
             subdomains: '0123',
             maxZoom: 20,
-            attribution: 'Map data &copy; Google'
-        })
-    };
+            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleImages</a>"        }),
+        })    };
 
     var map = L.map('map', {
         attributionControl: true,
