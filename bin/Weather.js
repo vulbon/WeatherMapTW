@@ -2,13 +2,12 @@ var Weather = {};
 
 // fcode => http://opendata.cwb.gov.tw/datalist
 
-Weather.h = function (query) {
+Weather["36h"] = function (query) {
     var fCode = "F-C0032-001";
-    console.log(fCode);
     return genOpenDataRequestURL(fCode);
 }
 
-Weather.d = function (query) {
+Weather["2d"] = function (query) {
     if (query.county) {
         var county = query.county.replace("台", "臺");
         var fCode = getFCode(county + "未來2天天氣預報");
@@ -18,7 +17,7 @@ Weather.d = function (query) {
     }
 }
 
-Weather.w = function (query) {
+Weather["1w"] = function (query) {
     if (query.county) {
         var county = query.county.replace("台", "臺");
         var fCode = getFCode(county + "未來1週天氣預報");

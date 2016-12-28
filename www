@@ -13,88 +13,103 @@ app.use(compression());
 
 /* At the top, with other redirect methods before other routes */
 if (process.env.PORT) {
-	app.get('*', function (req, res, next) {
-		if (req.headers['x-forwarded-proto'] != 'https')
-			res.redirect('https://WeatherMapTW.herokuapp.com' + req.url)
-		else
-			next() /* Continue to other routes if we're not redirecting */
-	});
+    app.get('*', function(req, res, next) {
+        if (req.headers['x-forwarded-proto'] != 'https')
+            res.redirect('https://WeatherMapTW.herokuapp.com' + req.url)
+        else
+            next() /* Continue to other routes if we're not redirecting */
+    });
 }
 
-app.get(["/api/:name", "/api/:name/*"], function (req, res) {
-	var functionName = req.params.name.toLowerCase();
-	var query = req.query;
-	if (functionName && Weather[functionName]) {
-		var openDataUrl = Weather[functionName](query);
-		console.log(openDataUrl);
-		if (openDataUrl) {
-			xml2jsonFromURL(openDataUrl, res);
-		} else {
-			res.send("Wrong parameters or function name");
-		}
-	} else {
-		res.send("Wrong parameters or function name");
-	}
+app.get(["/api/:name", "/api/:name/*"], function(req, res) {
+    var functionName = req.params.name.toLowerCase();
+    var query = req.query;
+    if (functionName && Weather[functionName]) {
+        var openDataUrl = Weather[functionName](query);
+        console.log(openDataUrl);
+        if (openDataUrl) {
+            xml2jsonFromURL(openDataUrl, res);
+        } else {
+            res.send("Wrong parameters or function name");
+        }
+    } else {
+        res.send("Wrong parameters or function name");
+    }
 });
 
 function xml2jsonFromURL(url, res) {
-	Common.logWithDatetime("Get OpenData", url);
-	request({
-		url: url,
-		headers: {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36'
-		}
-	}, function (error, response, body) {
+    Common.logWithDatetime("Get OpenData", url);
+    request({
+        url: url,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36'
+        }
+    }, function(error, response, body) {
 
-		if (!error && response.statusCode == 200) {
-			xml2json(body, function (err, result) {
-				res.writeHead(200, {
-					"Content-Type": "application/json; charset=utf-8"
-				});
+        if (!error && response.statusCode == 200) {
+            xml2json(body, function(err, result) {
+                res.writeHead(200, {
+                    "Content-Type": "application/json; charset=utf-8"
+                });
 
-				// rearrange data
-				// weather element => datetime => conunty
+                // rearrange data
+                // weather element => datetime => conunty
 
-				var dataset = result.cwbopendata.dataset[0];
+                var dataset = result.cwbopendata.dataset[0];
+                if (dataset) {
+                    var output = {};
+                    output.datasetInfo = dataset.datasetInfo;
 
-				var output = {};
-				output.datasetInfo = dataset.datasetInfo;
+                    // what the...
+                    // 2d data different then 1w and 36h
+                    if (dataset.locations) dataset.location = dataset.locations[0].location;
 
-				for (var i = 0, ii = dataset.location.length; i < ii; i++) {
+                    for (var i = 0, ii = dataset.location.length; i < ii; i++) {
 
-					var locationName = dataset.location[i].locationName[0];
+                        // what the...
+                        var locationName = dataset.location[i].locationName[0];
+                        var wx = dataset.location[i].weatherElement;
+                        for (var j = 0, jj = wx.length; j < jj; j++) {
+                            var wxName = wx[j].elementName[0];
 
-					var wx = dataset.location[i].weatherElement;
-					for (var j = 0, jj = wx.length; j < jj; j++) {
-						var wxName = wx[j].elementName[0];
-
-						var time = wx[j].time;
-						for (var k = 0, kk = time.length; k < kk; k++) {
-							var startTime = moment(time[k].startTime[0]).format("YYYY-MM-DDTmm:HH:ss");
-							var endTime = moment(time[k].endTime[0]).format("YYYY-MM-DDTmm:HH:ss");
-
-							console.log(locationName, wxName, startTime, endTime, time[k].parameter[0]);
-						}
-					}
-				}
-				res.end(JSON.stringify(output).replace(/\\n|\r?\n|\r|\s/g, ''));
-				Common.logWithDatetime("Got OpenData", url);
-			});
-		}
-	});
+                            var time = wx[j].time;
+                            for (var k = 0, kk = time.length; k < kk; k++) {
+								console.log(time[k]);
+                                var dateTime = "";
+                                if (time[k].dateTime) {
+                                    dateTime = moment(time[k].dateTime[0]).format("YYYY-MM-DDTmm:HH:ss");
+                                } else {
+                                    dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DDTmm:HH:ss") +
+                                        " ~ " +
+                                        moment(time[k].endTime[0]).format("YYYY-MM-DDTmm:HH:ss");
+                                }
+								if (time[k].elementValue) time[k].parameter = time[k].elementValue;
+								console.log(locationName,wxName,dateTime,time[k].parameter[0]);
+                            }
+                        }
+                    }
+                    res.end(JSON.stringify(output).replace(/\\n|\r?\n|\r|\s/g, ''));
+                    Common.logWithDatetime("Got OpenData", url);
+                } else {
+                    res.end({ "success": false, "message": "no data" });
+                    Common.logWithDatetime("Lost OpenData", url);
+                }
+            });
+        }
+    });
 }
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 43200000 }));
 
 //catch 404 and forward to error handler
-app.use(function (req, res, next) {
-	var err = new Error('Not Found');
-	err.status = 404;
-	next(err);
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
-var server = app.listen((process.env.PORT || 3312), function () {
-	var host = server.address().address;
-	var port = server.address().port;
-	Common.logWithDatetime("service start", host, port);
+var server = app.listen((process.env.PORT || 3312), function() {
+    var host = server.address().address;
+    var port = server.address().port;
+    Common.logWithDatetime("service start", host, port);
 });

@@ -6,15 +6,26 @@ $(document).ready(function () {
     var tileLayers = {
         nlscEmap: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=EMAP&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
             maxZoom: 19,
-            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>臺灣通用電子地圖"
+            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>-臺灣通用電子地圖"
         }),
         nlscImage: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=PHOTO2&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
             maxZoom: 19,
-            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>正射影像"
+            attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>-正射影像"
         }),
-        osm: L.tileLayer("http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
+        osmCycle: L.tileLayer("http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
             subdomains: "abc",
+            maxZoom: 20,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a>'
+        }),
+        gsm: L.tileLayer('http://mt{s}.google.com/vt/x={x}&y={y}&z={z}', {
+            subdomains: '0123',
+            maxZoom: 20,
+            attribution: 'Map data &copy; Google'
+        }),
+        gim: L.tileLayer('http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            subdomains: '0123',
+            maxZoom: 20,
+            attribution: 'Map data &copy; Google'
         })
     };
 
@@ -26,9 +37,10 @@ $(document).ready(function () {
     L.control.layers({
         "臺灣通用電子地圖": tileLayers.nlscEmap,
         "正射影像": tileLayers.nlscImage,
-        "OpenStreetMap-Cycle":tileLayers.osm
+        "OSM-CycleMap": tileLayers.osmCycle,
+        "Google Street": tileLayers.gsm,
+        "Google Image": tileLayers.gim
     }, null).addTo(map);
-
     // move zoom controller to bottom right
     L.control.zoom({
         position: "bottomright"
@@ -52,15 +64,15 @@ $(document).ready(function () {
         triggerButton.style.cursor = "pointer";
 
         L.DomEvent.addListener(triggerButton, 'click', function (e) {
-                //geolocation
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                        map.setView([position.coords.latitude, position.coords.longitude], 16);
-                        geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
-                        geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
-                    });
-                }
-            });
+            //geolocation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    map.setView([position.coords.latitude, position.coords.longitude], 16);
+                    geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
+                    geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
+                });
+            }
+        });
 
         return triggerButton;
     }
