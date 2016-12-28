@@ -14,8 +14,16 @@ $(document).ready(function () {
         }),
         osm: L.tileLayer("http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
             subdomains: "abc",
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a>'
-        })
+            attribution: "Map data &copy; <a href='http://openstreetmap.org' target='_blank'>OpenStreetMap</a>"
+        }),
+        gsm: L.tileLayer('http://mt{s}.google.com/vt/x={x}&y={y}&z={z}', {
+            subdomains: '0123',
+            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleStreetMap</a>"
+        }),
+        gim: L.tileLayer('http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            subdomains: '0123',
+            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleImages</a>"
+        }),
     };
 
     var map = L.map('map', {
@@ -26,7 +34,9 @@ $(document).ready(function () {
     L.control.layers({
         "臺灣通用電子地圖": tileLayers.nlscEmap,
         "正射影像": tileLayers.nlscImage,
-        "OpenStreetMap-Cycle":tileLayers.osm
+        "OpenStreetMap-Cycle":tileLayers.osm,
+        "GoogleStreetMap":tileLayers.gsm,
+        "GoogleImage":tileLayers.gim
     }, null).addTo(map);
 
     // move zoom controller to bottom right
