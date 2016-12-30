@@ -26,24 +26,33 @@ Weather["36h"] = function (query, outterCallback) {
 }
 
 Weather["1w"] = function (query, outterCallback) {
-    var url, fCode, county;
     if (query.county) {
-        county = query.county.replace("台", "臺");
-        fCode = getFCode(county + "未來1週天氣預報");
-        url = genOpenDataRequestURL(fCode);
+        var county = query.county.replace("台", "臺");
+        var fCode = getFCode(county + "未來1週天氣預報");
+        var url = genOpenDataRequestURL(fCode);
+        async.waterfall([
+            //get json object from xml
+            function (callback) {
+                callback(null, url);
+            },
+            xml2jsonFromURL,
+            dataRearrange1WwithCounty
+        ], function (err, result) {
+            outterCallback(err, result);
+        });
     } else {
-        url = genOpenDataRequestURL("F-C0032-005");
+        var url = genOpenDataRequestURL("F-C0032-005");
+        async.waterfall([
+            //get json object from xml
+            function (callback) {
+                callback(null, url);
+            },
+            xml2jsonFromURL,
+            dataRearrange36H1W
+        ], function (err, result) {
+            outterCallback(err, result);
+        });
     }
-    async.waterfall([
-        //get json object from xml
-        function (callback) {
-            callback(null, url);
-        },
-        xml2jsonFromURL,
-        dataRearrange36H1W
-    ], function (err, result) {
-        outterCallback(err, result);
-    });
 }
 
 
@@ -95,6 +104,95 @@ function xml2jsonFromURL(url, callback) {
 function dataRearrange36H1W(object, callback) {
     var dataset = object.cwbopendata.dataset[0];
     if (dataset) {
+        var output = {};
+        output.datasetInfo = dataset.datasetInfo;
+
+        var data = {};
+
+        for (var i = 0, ii = dataset.location.length; i < ii; i++) {
+            // what the...
+            var locationName = dataset.location[i].locationName[0];
+            var wx = dataset.location[i].weatherElement;
+            for (var j = 0, jj = wx.length; j < jj; j++) {
+                var wxName = wx[j].elementName[0];
+                var time = wx[j].time;
+                for (var k = 0, kk = time.length; k < kk; k++) {
+                    dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DD mm:HH:ss") +
+                        " ~ " +
+                        moment(time[k].endTime[0]).format("YYYY-MM-DD mm:HH:ss");
+                    //console.log(locationName, wxName, dateTime, time[k].parameter[0]);
+
+
+                    // wx,time,county(location),parameter
+                    if (!data[wxName]) {
+                        data[wxName] = {};
+                    }
+                    if (!data[wxName][dateTime]) {
+                        data[wxName][dateTime] = {};
+                    }
+                    if (!data[wxName][dateTime][locationName]) {
+                        data[wxName][dateTime][locationName] = {};
+                    }
+
+                    data[wxName][dateTime][locationName] = time[k].parameter[0];
+                }
+            }
+        }
+        output.data = data;
+        callback(null, output);
+    } else {
+        callback({ "success": false, "message": "no data" });
+    }
+}
+
+function dataRearrange1WwithCounty(object, callback) {
+    var dataset = object.cwbopendata.dataset[0];
+    if (dataset) {
+        var output = {};
+        output.datasetInfo = dataset.datasetInfo;
+
+        var data = {};
+
+        for (var i = 0, ii = dataset.locations.length; i < ii; i++) {
+            // what the...
+            var locationName = dataset.locations[i].locationName[0];
+            var wx = dataset.locations[i].weatherElement;
+            for (var j = 0, jj = wx.length; j < jj; j++) {
+                var wxName = wx[j].elementName[0];
+                var time = wx[j].time;
+                for (var k = 0, kk = time.length; k < kk; k++) {
+                    dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DD mm:HH:ss") +
+                        " ~ " +
+                        moment(time[k].endTime[0]).format("YYYY-MM-DD mm:HH:ss");
+                    //console.log(locationName, wxName, dateTime, time[k].parameter[0]);
+
+
+                    // wx,time,county(location),parameter
+                    if (!data[wxName]) {
+                        data[wxName] = {};
+                    }
+                    if (!data[wxName][dateTime]) {
+                        data[wxName][dateTime] = {};
+                    }
+                    if (!data[wxName][dateTime][locationName]) {
+                        data[wxName][dateTime][locationName] = {};
+                    }
+
+                    data[wxName][dateTime][locationName] = time[k].parameter[0];
+                }
+            }
+        }
+        output.data = data;
+        callback(null, output);
+    } else {
+    } else {
+        callback({ "success": false, "message": "no data" });
+    }
+}
+
+function dataRearrange2d(object, callback) {
+    var dataset = object.cwbopendata.dataset[0];
+    if (dataset) {
         // var output = {};
         // output.datasetInfo = dataset.datasetInfo;
         // // 2d data different then 1w and 36h
@@ -121,10 +219,6 @@ function dataRearrange36H1W(object, callback) {
     } else {
         callback({ "success": false, "message": "no data" });
     }
-}
-
-function dataRearrange2d(object, callback) {
-    callback(object);
 }
 
 function genOpenDataRequestURL(code) {
