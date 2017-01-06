@@ -36,7 +36,7 @@ Weather["1w"] = function (query, outterCallback) {
                 callback(null, url);
             },
             xml2jsonFromURL,
-            dataRearrangewithCounty
+            dataRearrangeWithCounty
         ], function (err, result) {
             outterCallback(err, result);
         });
@@ -72,7 +72,7 @@ Weather["2d"] = function (query, outterCallback) {
             callback(null, url);
         },
         xml2jsonFromURL,
-        dataRearrangewithCounty
+        dataRearrangeWithCounty
     ], function (err, result) {
         outterCallback(err, result);
     });
@@ -93,7 +93,7 @@ function xml2jsonFromURL(url, callback) {
                 if (err) {
                     callback(err);
                 } else {
-                    callback(null, result);
+                    callback(null, url, result);
                 }
             });
         }
@@ -101,7 +101,7 @@ function xml2jsonFromURL(url, callback) {
     Common.logWithDatetime("Got OpenData", url);
 }
 
-function dataRearrange(object, callback) {
+function dataRearrange(url, object, callback) {
     var dataset = object.cwbopendata.dataset[0];
     if (dataset) {
         var output = {};
@@ -110,6 +110,7 @@ function dataRearrange(object, callback) {
         for (var key in dataset.datasetInfo[0]) {
             output.datasetInfo[key] = dataset.datasetInfo[0][key][0];
         }
+        output.datasetInfo.originalDataUrl = url;
 
         var data = {};
         for (var i = 0, ii = dataset.location.length; i < ii; i++) {
@@ -147,7 +148,7 @@ function dataRearrange(object, callback) {
     }
 }
 
-function dataRearrangewithCounty(object, callback) {
+function dataRearrangeWithCounty(url, object, callback) {
     var dataset = object.cwbopendata.dataset[0];
     if (dataset) {
         var output = {};
@@ -155,6 +156,7 @@ function dataRearrangewithCounty(object, callback) {
         for (var key in dataset.datasetInfo[0]) {
             output.datasetInfo[key] = dataset.datasetInfo[0][key][0];
         }
+        output.datasetInfo.originalDataUrl = url;
 
         var data = {};
         var locationInfo = {};
