@@ -19,7 +19,7 @@ Weather["36h"] = function (query, outterCallback) {
             callback(null, url);
         },
         xml2jsonFromURL,
-        dataRearrange36H1W
+        dataRearrange
     ], function (err, result) {
         outterCallback(err, result);
     });
@@ -36,7 +36,7 @@ Weather["1w"] = function (query, outterCallback) {
                 callback(null, url);
             },
             xml2jsonFromURL,
-            dataRearrange1WwithCounty
+            dataRearrangewithCounty
         ], function (err, result) {
             outterCallback(err, result);
         });
@@ -48,7 +48,7 @@ Weather["1w"] = function (query, outterCallback) {
                 callback(null, url);
             },
             xml2jsonFromURL,
-            dataRearrange36H1W
+            dataRearrange
         ], function (err, result) {
             outterCallback(err, result);
         });
@@ -72,7 +72,7 @@ Weather["2d"] = function (query, outterCallback) {
             callback(null, url);
         },
         xml2jsonFromURL,
-        dataRearrange2d
+        dataRearrangewithCounty
     ], function (err, result) {
         outterCallback(err, result);
     });
@@ -101,40 +101,42 @@ function xml2jsonFromURL(url, callback) {
     Common.logWithDatetime("Got OpenData", url);
 }
 
-function dataRearrange36H1W(object, callback) {
+function dataRearrange(object, callback) {
     var dataset = object.cwbopendata.dataset[0];
     if (dataset) {
         var output = {};
-        output.datasetInfo = dataset.datasetInfo;
+
+        output.datasetInfo = {};
+        for (var key in dataset.datasetInfo[0]) {
+            output.datasetInfo[key] = dataset.datasetInfo[0][key][0];
+        }
 
         var data = {};
-
         for (var i = 0, ii = dataset.location.length; i < ii; i++) {
-            // what the...
             var locationName = dataset.location[i].locationName[0];
             var wx = dataset.location[i].weatherElement;
             for (var j = 0, jj = wx.length; j < jj; j++) {
                 var wxName = wx[j].elementName[0];
                 var time = wx[j].time;
                 for (var k = 0, kk = time.length; k < kk; k++) {
-                    dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DD mm:HH:ss") +
+                    var dataTime = moment(time[k].startTime[0]).format("YYYY-MM-DD mm:HH:ss") +
                         " ~ " +
                         moment(time[k].endTime[0]).format("YYYY-MM-DD mm:HH:ss");
-                    //console.log(locationName, wxName, dateTime, time[k].parameter[0]);
-
-
-                    // wx,time,county(location),parameter
                     if (!data[wxName]) {
                         data[wxName] = {};
                     }
-                    if (!data[wxName][dateTime]) {
-                        data[wxName][dateTime] = {};
+                    if (!data[wxName][dataTime]) {
+                        data[wxName][dataTime] = {};
                     }
-                    if (!data[wxName][dateTime][locationName]) {
-                        data[wxName][dateTime][locationName] = {};
+                    if (!data[wxName][dataTime][locationName]) {
+                        data[wxName][dataTime][locationName] = {};
                     }
 
-                    data[wxName][dateTime][locationName] = time[k].parameter[0];
+                    var parameter = {};
+                    for (var key in time[k].parameter[0]) {
+                        parameter[key] = time[k].parameter[0][key][0];
+                    }
+                    data[wxName][dataTime][locationName] = parameter;
                 }
             }
         }
@@ -145,77 +147,66 @@ function dataRearrange36H1W(object, callback) {
     }
 }
 
-function dataRearrange1WwithCounty(object, callback) {
+function dataRearrangewithCounty(object, callback) {
     var dataset = object.cwbopendata.dataset[0];
     if (dataset) {
         var output = {};
-        output.datasetInfo = dataset.datasetInfo;
+        output.datasetInfo = {};
+        for (var key in dataset.datasetInfo[0]) {
+            output.datasetInfo[key] = dataset.datasetInfo[0][key][0];
+        }
 
         var data = {};
+        var locationInfo = {};
 
-        for (var i = 0, ii = dataset.locations.length; i < ii; i++) {
-            // what the...
-            var locationName = dataset.locations[i].locationName[0];
-            var wx = dataset.locations[i].weatherElement;
+        var location = dataset.locations[0].location;
+        for (var i = 0, ii = location.length; i < ii; i++) {
+            var locationName = location[i].locationName;
+            var lat = location[i].lat[0];
+            var lon = location[i].lon[0];
+
+            locationInfo[locationName] = { "lat": lat, "lon": lon };
+
+            var wx = location[i].weatherElement;
             for (var j = 0, jj = wx.length; j < jj; j++) {
                 var wxName = wx[j].elementName[0];
                 var time = wx[j].time;
+
                 for (var k = 0, kk = time.length; k < kk; k++) {
-                    dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DD mm:HH:ss") +
-                        " ~ " +
-                        moment(time[k].endTime[0]).format("YYYY-MM-DD mm:HH:ss");
-                    //console.log(locationName, wxName, dateTime, time[k].parameter[0]);
+                    var dataTime = "";
+                    if (time[k].dataTime) {
+                        dataTime = moment(time[k].dataTime[0].replace(/\\n|\s/g, '')).format("YYYY-MM-DD mm:HH:ss");
+                    } else {
+                        dataTime = moment(time[k].startTime[0].replace(/\\n|\s/g, '')).format("YYYY-MM-DD mm:HH:ss") +
+                            " ~ " +
+                            moment(time[k].endTime[0].replace(/\\n|\s/g, '')).format("YYYY-MM-DD mm:HH:ss");
+                    }
 
-
-                    // wx,time,county(location),parameter
                     if (!data[wxName]) {
                         data[wxName] = {};
                     }
-                    if (!data[wxName][dateTime]) {
-                        data[wxName][dateTime] = {};
+                    if (!data[wxName][dataTime]) {
+                        data[wxName][dataTime] = {};
                     }
-                    if (!data[wxName][dateTime][locationName]) {
-                        data[wxName][dateTime][locationName] = {};
+                    if (!data[wxName][dataTime][locationName]) {
+                        data[wxName][dataTime][locationName] = {};
                     }
 
-                    data[wxName][dateTime][locationName] = time[k].parameter[0];
+                    if (time[k].elementValue) {
+                        time[k].parameter = time[k].elementValue;
+                    }
+                    var parameter = {};
+                    for (var key in time[k].parameter[0]) {
+                        parameter[key] = time[k].parameter[0][key][0];
+                    }
+                    data[wxName][dataTime][locationName] = parameter;
                 }
             }
         }
+        output.locationInfo = locationInfo;
         output.data = data;
         callback(null, output);
-    } else {
-    } else {
-        callback({ "success": false, "message": "no data" });
-    }
-}
-
-function dataRearrange2d(object, callback) {
-    var dataset = object.cwbopendata.dataset[0];
-    if (dataset) {
-        // var output = {};
-        // output.datasetInfo = dataset.datasetInfo;
-        // // 2d data different then 1w and 36h
-        // for (var i = 0, ii = dataset.location.length; i < ii; i++) {
-        //     // what the...
-        //     var locationName = dataset.location[i].locationName[0];
-        //     var wx = dataset.location[i].weatherElement;
-        //     for (var j = 0, jj = wx.length; j < jj; j++) {
-        //         var wxName = wx[j].elementName[0];
-        //         var time = wx[j].time;
-        //         for (var k = 0, kk = time.length; k < kk; k++) {
-        //             //console.log(time[k]);
-        //             var dateTime = "";
-        //             dateTime = moment(time[k].dateTime[0]).format("YYYY-MM-DDTmm:HH:ss");
-        //             dateTime = moment(time[k].startTime[0]).format("YYYY-MM-DDTmm:HH:ss") +
-        //                 " ~ " +
-        //                 moment(time[k].endTime[0]).format("YYYY-MM-DDTmm:HH:ss");
-        //             if (time[k].elementValue) time[k].parameter = time[k].elementValue;
-        //             console.log(locationName, wxName, dateTime, time[k].parameter[0]);
-        //         }
-        //     }
-        // }
-        callback(null, dataset);
+        //callback(null, dataset);
     } else {
         callback({ "success": false, "message": "no data" });
     }
