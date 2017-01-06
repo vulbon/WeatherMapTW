@@ -3,7 +3,7 @@ var concat = require('gulp-concat');
 var less = require('gulp-less');
 var sass = require('gulp-sass');
 //var ignore=require("gulp-ignore");
-//var uglify = require("gulp-uglify");
+var uglify = require("gulp-uglify");
 
 var minifyCss = require('gulp-minify-css');
 var webserver = require("gulp-webserver");
@@ -28,7 +28,7 @@ gulp.task('map', function () {
         return gulp.src(map) // path to your files
             .pipe(concat('app.js'))
             //.pipe(ignore.exclude(["**/*.map"]))
-            //.pipe(uglify())
+            .pipe(uglify())
             .pipe(gulp.dest('./public/js/'));
     } else {
         var map = [

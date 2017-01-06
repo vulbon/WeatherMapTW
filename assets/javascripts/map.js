@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     // map
     var mapBounds = L.latLngBounds(L.latLng(21.88, 118.12), L.latLng(25.44, 122.49));
 
@@ -25,8 +25,9 @@ $(document).ready(function() {
         gim: L.tileLayer('http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
             subdomains: '0123',
             maxZoom: 20,
-            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleImages</a>"        }),
-        })    };
+            attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleImages</a>"
+        })
+    };
 
     var map = L.map('map', {
         attributionControl: true,
@@ -51,7 +52,7 @@ $(document).ready(function() {
         control: L.control({ position: "bottomright" }),
         opened: false
     };
-    geolocationButton.control.onAdd = function(map) {
+    geolocationButton.control.onAdd = function (map) {
         var triggerButton = L.DomUtil.create("div", "leaflet-bar");
         triggerButton.style.backgroundImage = "url(style/images/geolocation.png)";
         triggerButton.style.backgroundSize = "20px 20px";
@@ -62,10 +63,10 @@ $(document).ready(function() {
         triggerButton.style.backgroundColor = "white";
         triggerButton.style.cursor = "pointer";
 
-        L.DomEvent.addListener(triggerButton, 'click', function(e) {
+        L.DomEvent.addListener(triggerButton, 'click', function (e) {
             //geolocation
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     map.setView([position.coords.latitude, position.coords.longitude], 16);
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
                     geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
@@ -78,7 +79,7 @@ $(document).ready(function() {
     geolocationButton.control.addTo(map);
 
     var geolocationMarker = { //定位點以及周圍
-        go: function(latlng) {
+        go: function (latlng) {
             var self = this;
             if (this.marker) {
                 this.marker.setLatLng(latlng).addTo(this.layers);
@@ -94,12 +95,12 @@ $(document).ready(function() {
                 });
 
                 var id = L.Util.stamp(this.marker)
-                this.marker.on("click", function() {
+                this.marker.on("click", function () {
                     self.remove();
                 }).addTo(this.layers);
             }
         },
-        range: function(latlng, radius) {
+        range: function (latlng, radius) {
             var self = this;
             if (this.circle) {
                 this.circle.setLatLng(latlng).setRadius(radius).addTo(this.layers);
@@ -108,13 +109,13 @@ $(document).ready(function() {
                 this.circle = L.circle(latlng, radius);
                 this.circle.setStyle({ color: "#00BCD4", fillColor: "#00BCD4" });
                 var id = L.Util.stamp(this.circle);
-                this.circle.on("click", function() {
+                this.circle.on("click", function () {
                     self.remove();
                 }).addTo(this.layers);
             }
             return this.circle.getBounds();
         },
-        remove: function() {
+        remove: function () {
             this.layers.clearLayers();
         },
         layers: L.layerGroup().addTo(map)
