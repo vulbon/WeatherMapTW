@@ -20,6 +20,7 @@ if (process.env.NODE_ENV === "production") {
 gulp.task('map', function () {
     if (process.env.NODE_ENV === 'production') {
         var map = [
+            "data.js",
             "map.js"
         ].map(function (script) {
             return './assets/javascripts/' + script;
@@ -27,11 +28,11 @@ gulp.task('map', function () {
 
         return gulp.src(map) // path to your files
             .pipe(concat('app.js'))
-            //.pipe(ignore.exclude(["**/*.map"]))
             .pipe(uglify())
             .pipe(gulp.dest('./public/js/'));
     } else {
         var map = [
+            "data.js",
             "map.js"
         ].map(function (script) {
             return './assets/javascripts/' + script;

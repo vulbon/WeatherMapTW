@@ -8,6 +8,7 @@ var app = express();
 app.use(compression());
 
 /* At the top, with other redirect methods before other routes */
+// redirect to https
 if (process.env.PORT) {
     app.get('*', function (req, res, next) {
         if (req.headers['x-forwarded-proto'] != 'https')
@@ -18,9 +19,9 @@ if (process.env.PORT) {
 }
 
 app.get(["/api/:name", "/api/:name/*"], function (req, res) {
-    Common.logWithDatetime("start");
     var functionName = req.params.name.toLowerCase();
     var query = req.query;
+    Common.logWithDatetime("start", functionName, JSON.stringify(query));
     if (functionName && Weather[functionName]) {
         var openDataUrl = Weather[functionName](query, function (err, result) {
             if (err) {
@@ -28,21 +29,24 @@ app.get(["/api/:name", "/api/:name/*"], function (req, res) {
                     "Content-Type": "application/json; charset=utf-8"
                 });
                 res.end(JSON.stringify(err));
+                Common.logWithDatetime("error", functionName, JSON.stringify(query));
             } else {
                 res.writeHead(200, {
                     "Content-Type": "application/json; charset=utf-8"
                 });
-                res.end(JSON.stringify(result).replace(/\\n|\s/g, ''));
-                //res.end(JSON.stringify(result));
+                res.end(JSON.stringify(result));
+                Common.logWithDatetime("done", functionName, JSON.stringify(query));
             }
+
         });
     } else {
         res.writeHead(400, {
             "Content-Type": "application/json; charset=utf-8"
         });
         res.send(JSON.stringify({ "success": false, "message": "wrong parameter" }));
+        Common.logWithDatetime("wrong parameter", functionName, JSON.stringify(query));
     }
-    Common.logWithDatetime("done");
+
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 43200000 }));
