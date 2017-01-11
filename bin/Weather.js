@@ -114,7 +114,10 @@ function dataRearrange(url, object, callback) {
                 var wxName = wx[j].elementName[0].replace(/\n|\s/g, '');
                 var time = wx[j].time;
                 for (var k = 0, kk = time.length; k < kk; k++) {
-                    var dataTime = time[k].startTime[0].replace('T', ' ').split('+')[0] + "~" + time[k].endTime[0].replace('T', ' ').split('+')[0];
+                    var dataTime = time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3)
+                        + "~" +
+                        time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3);
+
                     if (!data[wxName]) {
                         data[wxName] = {};
                     }
@@ -169,11 +172,11 @@ function dataRearrangeWithCounty(url, object, callback) {
                 for (var k = 0, kk = time.length; k < kk; k++) {
                     var dataTime = "";
                     if (time[k].dataTime) {
-                        dataTime = time[k].dataTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0];
+                        dataTime = time[k].dataTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0].slice(0, -3);
                     } else {
-                        dataTime = time[k].startTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0]
+                        dataTime = time[k].startTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0].slice(0, -3)
                             + "~"
-                            + time[k].endTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0];
+                            + time[k].endTime[0].replace(/\\n|\s/g, '').replace('T', ' ').split('+')[0].slice(0, -3);
                     }
 
                     if (!data[wxName]) {
@@ -198,11 +201,11 @@ function dataRearrangeWithCounty(url, object, callback) {
             }
         }
         output.locationInfo = locationInfo;
-        output.timeList = [];
+        //output.timeList = [];
         // for (var key in data) {
         //     output.timeList.push(key);
         // }
-        // output.data = data;
+        output.data = data;
         callback(null, output);
     } else {
         callback({ "success": false, "message": "no data" });

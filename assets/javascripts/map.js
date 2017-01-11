@@ -64,7 +64,9 @@ $(document).ready(function () {
 
         L.DomEvent.addListener(triggerButton, 'click', function (e) {
             //geolocation
+            alert("定位中");
             if (navigator.geolocation) {
+                alert(navigator.geolocation);
                 navigator.geolocation.getCurrentPosition(function (position) {
                     map.setView([position.coords.latitude, position.coords.longitude], 16);
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
