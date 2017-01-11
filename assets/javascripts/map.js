@@ -69,7 +69,7 @@ $(document).ready(function () {
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
                     geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
                 }, function (err) {
-                    alert(err);
+                    alert(JSON.stringify(err));
                 }, { timeout: 10000 });
             }
         });
@@ -191,6 +191,7 @@ $(document).ready(function () {
                     "name": "最高溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
                     , colorMap: function (value) {
                         var num = parseInt(value);
+                        // 35-5 color map
                         if (num > 20) {
                             if (num > 35) {
                                 return "rgb(255,255,0)"
