@@ -276,12 +276,12 @@ $(document).ready(function () {
     getData("36h");
     //取得資料並繪製縣市區塊
     function getData(dataLength, county) {
-        $(".sel_enableWhenLoaded").attr("disabled", true);
+        $(".enableWhenLoaded").attr("disabled", true);
         $("#span_loader").css("display", "inline-block");
         if (weatherData[dataLength]) {
             genDataTypeSelectMenu(dataLength);
             //genTimeSelectMenu(weatherData[dataLength].timeList);
-            $(".sel_enableWhenLoaded").attr("disabled", false);
+            $(".enableWhenLoaded").attr("disabled", false);
             $("#span_loader").css("display", "none");
         } else {
             var url = "/api/" + dataLength;
@@ -296,7 +296,7 @@ $(document).ready(function () {
                 genDataTypeSelectMenu(dataLength);
                 //genTimeSelectMenu(data.timeList);
             }).always(function () {
-                $(".sel_enableWhenLoaded").attr("disabled", false);
+                $(".enableWhenLoaded").attr("disabled", false);
                 $("#span_loader").css("display", "none");
             });
         }

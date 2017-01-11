@@ -20,20 +20,20 @@
 <body>
     <div id="map"></div>
     <div id="menu">
-        <input type="radio" id="radio_dataLength_36h" class="radio_dataLength sel_enableWhenLoaded" value="36h" name="radio_dataLength"
+        <input type="radio" id="radio_dataLength_36h" class="radio_dataLength enableWhenLoaded leftIndent" value="36h" name="radio_dataLength"
             checked disabled>
         <label for="radio_dataLength_36h">36小時</label>
         <!--<input type="radio" id="radio_dataLength_2d" value="2d" name="radio_dataLength">-->
-        <input type="radio" id="radio_dataLength_1w" class="radio_dataLength sel_enableWhenLoaded" value="1w" name="radio_dataLength"
+        <input type="radio" id="radio_dataLength_1w" class="radio_dataLength enableWhenLoaded" value="1w" name="radio_dataLength"
             disabled>
         <label for="radio_dataLength_1w">一週</label>
         <span id="span_loader"></span>
         <br>
-        <label> 預報總類：</label>
-        <select id="sel_dataType" class="sel_enableWhenLoaded" disabled></select>
+        <label class="leftIndent"> 預報總類：</label>
+        <select id="sel_dataType" class="enableWhenLoaded" disabled></select>
         <br>
-        <label> 預報時間：</label>
-        <select id="sel_time" class="sel_enableWhenLoaded" disabled></select>
+        <label class="leftIndent"> 預報時間：</label>
+        <select id="sel_time" class="enableWhenLoaded" disabled></select>
     </div>
 </body>
 <script src="js/jquery-3.1.1.min.js"></script>
