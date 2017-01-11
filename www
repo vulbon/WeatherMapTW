@@ -1,6 +1,8 @@
 var express = require("express");
 var path = require("path");
 var compression = require("compression");
+var request = require("request");
+
 var Common = require("./bin/Common");
 var Weather = require("./bin/Weather");
 
@@ -46,7 +48,30 @@ app.get(["/api/:name", "/api/:name/*"], function (req, res) {
         res.send(JSON.stringify({ "success": false, "message": "wrong parameter" }));
         Common.logWithDatetime("wrong parameter", functionName, JSON.stringify(query));
     }
+});
 
+//proxy
+app.get(["/:name"], function (req, res) {
+    var name = req.params.name.toLowerCase();
+    //var query = req.query;
+    if (name == "proxy" && req.url.indexOf("proxy?") > -1) {
+        var url = req.url.replace("/proxy?", "");
+        Common.logWithDatetime("proxy", url);
+        req.pipe(request({
+            url: url,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36'
+            }
+        })).on('error', function (err) {
+            console.log('Error piping request object to request(): ', err);
+            res.writeHead(404);
+            res.end();
+        }).pipe(res).on('error', function (err) {
+            console.log('Error piping response from request() to response object : ', err);
+            res.writeHead(404);
+            res.end();
+        });
+    }
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 43200000 }));

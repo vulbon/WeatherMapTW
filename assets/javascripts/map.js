@@ -1,27 +1,28 @@
 $(document).ready(function () {
+    var proxyUrl = "/proxy?";
     // map
     var mapBounds = L.latLngBounds(L.latLng(21.88, 118.12), L.latLng(25.44, 122.49));
 
     var tileLayers = {
-        nlscEmap: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=EMAP&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
+        nlscEmap: L.tileLayer(proxyUrl + "http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=EMAP&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
             maxZoom: 19,
             attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>-臺灣通用電子地圖"
         }),
-        nlscImage: L.tileLayer("http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=PHOTO2&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
+        nlscImage: L.tileLayer(proxyUrl + "http://maps.nlsc.gov.tw/S_Maps/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=PHOTO2&STYLE=_null&TILEMATRIXSET=EPSG:3857&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png", {
             maxZoom: 19,
             attribution: "Map data &copy; <a href='http://maps.nlsc.gov.tw/' target='_blank'>國土測繪中心</a>-正射影像"
         }),
-        osmCycle: L.tileLayer("http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
+        osmCycle: L.tileLayer(proxyUrl + "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png", {
             subdomains: "abc",
             maxZoom: 20,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a>'
         }),
-        gsm: L.tileLayer('http://mt{s}.google.com/vt/x={x}&y={y}&z={z}', {
+        gsm: L.tileLayer(proxyUrl + "http://mt{s}.google.com/vt/x={x}&y={y}&z={z}", {
             subdomains: '0123',
             maxZoom: 20,
             attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleStreetMap</a>"
         }),
-        gim: L.tileLayer('http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        gim: L.tileLayer(proxyUrl + "http://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
             subdomains: '0123',
             maxZoom: 20,
             attribution: "Map data &copy; <a href='http://maps.google.com' target='_blank'>GoogleImages</a>"
