@@ -63,15 +63,14 @@ $(document).ready(function () {
         triggerButton.style.cursor = "pointer";
 
         L.DomEvent.addListener(triggerButton, 'click', function (e) {
-            //geolocation
-            alert("定位中");
             if (navigator.geolocation) {
-                alert(navigator.geolocation);
                 navigator.geolocation.getCurrentPosition(function (position) {
                     map.setView([position.coords.latitude, position.coords.longitude], 16);
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
                     geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
-                });
+                }, function (err) {
+                    alert(err);
+                }, { timeout: 10000 });
             }
         });
 
@@ -339,7 +338,7 @@ $(document).ready(function () {
             var dataValue = dataPerCountyObj[key][calValue];
             countyBoardLayerGroup.addLayer(L.geoJSON(countyBoard[key], {
                 style: {
-                    weight: 2,
+                    weight: 1,
                     opacity: 0.8,
                     color: 'white',
                     dashArray: '3',
