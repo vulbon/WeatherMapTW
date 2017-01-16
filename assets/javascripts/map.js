@@ -34,17 +34,20 @@ $(document).ready(function () {
         zoomControl: false,
         layers: tileLayers.nlscEmap
     }).fitBounds(mapBounds);
+
+    // move zoom controller to bottom right
+    L.control.zoom({
+        position: "bottomright"
+    }).addTo(map);
+
+    // layers change
     L.control.layers({
         "臺灣通用電子地圖": tileLayers.nlscEmap,
         "正射影像": tileLayers.nlscImage,
         "OSM-CycleMap": tileLayers.osmCycle,
         "Google Street": tileLayers.gsm,
         "Google Image": tileLayers.gim
-    }, null, { position: "bottomleft" }).addTo(map);
-    // move zoom controller to bottom right
-    L.control.zoom({
-        position: "bottomright"
-    }).addTo(map);
+    }, null, { position: "bottomright" }).addTo(map);
 
     // 定位
     // 因為這個搞https搞了好久啊!!
@@ -66,11 +69,11 @@ $(document).ready(function () {
         L.DomEvent.addListener(triggerButton, 'click', function (e) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    map.setView([position.coords.latitude, position.coords.longitude], 16);
+                    //map.setView([position.coords.latitude, position.coords.longitude], 16);
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
                     geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
                 }, function (err) {
-                    alert(JSON.stringify(err));
+                    alert("無法取得您的目前位置");
                 }, { timeout: 10000 });
             }
         });
@@ -122,6 +125,60 @@ $(document).ready(function () {
         layers: L.layerGroup().addTo(map)
     };
 
+    var colorMapFunction = {
+        "Wx": function (value) {
+            // http://opendata.cwb.gov.tw/opendatadoc/MFC/A0012-001.pdf
+            var rgbValue = "rgb(0,0,0)";
+            switch (value) {
+                // 晴天，多雲
+                case "1": case "2": case "7": case "8":
+                    rgbValue = "rgb(255,200,50)";
+                    break;
+                // 陰天
+                case "3": case "5": case "6":
+                    rgbValue = "rgb(150,150,150)";
+                    break;
+                // 雨天
+                case "4": case "12": case "13": case "17": case "18": case "24": case "26": case "31": case "34": case "36": case "49": case "57": case "58": case "59":
+                    rgbValue = "rgb(0,0,255)";
+                    break;
+                // 霧
+                case "43": case "44": case "45": case "46":
+                    rgbValue = "rgb(255,255,100)";
+                    break;
+                // 雪
+                case "60":
+                    rgbValue = "rgb(255,255,255)";
+                    break;
+            }
+            return rgbValue;
+        },
+        "T": function (value) {
+            var num = parseInt(value);
+            if (num > 20) {
+                if (num > 35) {
+                    return "rgb(255,0,255)";
+                } else {
+                    var gb = parseInt((35 - num) / 15 * 255);
+                    return "rgb(255," + gb + "," + gb + ")";
+                };
+            } else if (num <= 20) {
+                if (num < 5) {
+                    return "rgb(255,0,255)";
+                } else {
+                    var rg = parseInt((num - 5) / 15 * 255);
+                    return "rgb(" + rg + "," + rg + ",255)";
+                };
+            }
+        }, "CI": function (value) {
+
+        }, "PoP": function (value) {
+            var num = parseInt(value);
+            var rg = parseInt((100 - num) / 100 * 255);
+            return "rgb(" + rg + "," + rg + ",255)";
+        }
+    }
+
     var menuItem = {
         "1w": {
             "name": "一週預報",
@@ -130,51 +187,15 @@ $(document).ready(function () {
                 "Wx":
                 {
                     "name": "天氣型態", "calValue": "parameterValue", "popup": [{ "value": "parameterName" }]
-                    , colorMap: function (value) {
-                        return "rgb(0,200,200)";
-                    }
+                    , colorMap: colorMapFunction.Wx
                 }
                 , "MaxT": {
                     "name": "最高溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
-                    , colorMap: function (value) {
-                        var num = parseInt(value);
-                        if (num > 20) {
-                            if (num > 35) {
-                                return "rgb(255,255,0)"
-                            } else {
-                                var gb = parseInt((35 - num) / 15 * 255);
-                                return "rgb(255," + gb + "," + gb + ")";
-                            };
-                        } else if (num <= 20) {
-                            if (num < 5) {
-                                return "rgb(0,255,0)"
-                            } else {
-                                var rg = parseInt((num - 5) / 15 * 255);
-                                return "rgb(" + rg + "," + rg + ",255)";
-                            };
-                        }
-                    }
+                    , colorMap: colorMapFunction.T
                 }
                 , "MinT": {
                     "name": "最低溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
-                    , colorMap: function (value) {
-                        var num = parseInt(value);
-                        if (num > 20) {
-                            if (num > 35) {
-                                return "rgb(255,255,0)"
-                            } else {
-                                var gb = parseInt((35 - num) / 15 * 255);
-                                return "rgb(255," + gb + "," + gb + ")";
-                            };
-                        } else if (num <= 20) {
-                            if (num < 5) {
-                                return "rgb(0,255,0)"
-                            } else {
-                                var rg = parseInt((num - 5) / 15 * 255);
-                                return "rgb(" + rg + "," + rg + ",255)";
-                            };
-                        }
-                    }
+                    , colorMap: colorMapFunction.T
                 }
             }
         },
@@ -184,63 +205,22 @@ $(document).ready(function () {
             "dataType": {
                 "Wx": {
                     "name": "天氣型態", "calValue": "parameterValue", "popup": [{ "value": "parameterName" }]
-                    , colorMap: function (value) {
-                        return "rgb(0,200,200)";
-                    }
+                    , colorMap: colorMapFunction.Wx
                 }
                 , "MaxT": {
                     "name": "最高溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
-                    , colorMap: function (value) {
-                        var num = parseInt(value);
-                        // 35-5 color map
-                        if (num > 20) {
-                            if (num > 35) {
-                                return "rgb(255,255,0)"
-                            } else {
-                                var gb = parseInt((35 - num) / 15 * 255);
-                                return "rgb(255," + gb + "," + gb + ")";
-                            };
-                        } else if (num <= 20) {
-                            if (num < 5) {
-                                return "rgb(0,255,0)"
-                            } else {
-                                var rg = parseInt((num - 5) / 15 * 255);
-                                return "rgb(" + rg + "," + rg + ",255)";
-                            };
-                        }
-                    }
+                    , colorMap: colorMapFunction.T
                 }
                 , "MinT": {
                     "name": "最低溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
-                    , colorMap: function (value) {
-                        var num = parseInt(value);
-                        if (num > 20) {
-                            if (num > 35) {
-                                return "rgb(255,255,0)"
-                            } else {
-                                var gb = parseInt((35 - num) / 15 * 255);
-                                return "rgb(255," + gb + "," + gb + ")";
-                            };
-                        } else if (num <= 20) {
-                            if (num < 5) {
-                                return "rgb(0,255,0)"
-                            } else {
-                                var rg = parseInt((num - 5) / 15 * 255);
-                                return "rgb(" + rg + "," + rg + ",255)";
-                            };
-                        }
-                    }
+                    , colorMap: colorMapFunction.T
                 }
                 , "CI": { "name": "舒適程度", "calValue": "parameterName", "popup": [{ "value": "parameterName" }] }
                 , "PoP": {
-                    "name": "降雨機率", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\%" }], colorMap: function (value) {
-                        var num = parseInt(value);
-                        var rg = parseInt((100 - num) / 100 * 255);
-                        return "rgb(" + rg + "," + rg + ",255)";
-                    }
+                    "name": "降雨機率", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\%" }]
+                    , colorMap: colorMapFunction.PoP
                 }
             }
-
         }
         // , "2d": {
         //     "name": "2天天氣預報",
@@ -330,6 +310,33 @@ $(document).ready(function () {
         drawData(wxValue, timeValue);
     });
 
+    function generatePopupContent(county) {
+        var data = weatherData[currentDataLength]["data"];
+
+        var displayObj = {};
+
+        for (var wx in data) {
+            var calValue = menuItem[currentDataLength]["dataType"][wx]["calValue"];
+            var showValue = menuItem[currentDataLength]["dataType"][wx]["popup"]["value"];
+            for (var time in data[wx]) {
+                var dataValue = data[wx][time][county][calValue];
+                var popUpValue = data[wx][time][county][showValue];
+                var backgroundColor = fillColorFunction(dataValue);
+
+                if (!displayObj[time]){
+                    displayObj[time] = {};
+                }
+                if (!displayObj[time][wx]){
+                    displayObj[time][wx] = {};
+                }
+                displayObj[time][wx]["value"]=popUpValue;
+                displayObj[time][wx]["color"]=backgroundColor;
+            }
+        }
+
+
+    }
+
     function drawData(wxValue, timeValue) {
         var dataPerCountyObj = weatherData[currentDataLength]["data"][wxValue][timeValue];
         var calValue = menuItem[currentDataLength]["dataType"][wxValue]["calValue"];
@@ -338,7 +345,7 @@ $(document).ready(function () {
         countyBoardLayerGroup.clearLayers();
         for (var key in dataPerCountyObj) {
             var dataValue = dataPerCountyObj[key][calValue];
-            countyBoardLayerGroup.addLayer(L.geoJSON(countyBoard[key], {
+            var geojsonLayer = L.geoJSON(countyBoard[key], {
                 style: {
                     weight: 1,
                     opacity: 0.8,
@@ -347,8 +354,9 @@ $(document).ready(function () {
                     fillOpacity: 0.7,
                     fillColor: fillColorFunction(dataValue)
                 }
-            })
-            );
+            });
+            geojsonLayer.bindPopup(generatePopupContent(key));
+            countyBoardLayerGroup.addLayer(geojsonLayer);
         }
     }
 });
