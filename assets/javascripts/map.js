@@ -69,7 +69,7 @@ $(document).ready(function () {
         L.DomEvent.addListener(triggerButton, 'click', function (e) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    //map.setView([position.coords.latitude, position.coords.longitude], 16);
+                    map.setView([position.coords.latitude, position.coords.longitude]);
                     geolocationMarker.range([position.coords.latitude, position.coords.longitude], position.coords.accuracy);
                     geolocationMarker.go([position.coords.latitude, position.coords.longitude]);
                 }, function (err) {
@@ -140,7 +140,7 @@ $(document).ready(function () {
                     break;
                 // 雨天
                 case "4": case "12": case "13": case "17": case "18": case "24": case "26": case "31": case "34": case "36": case "49": case "57": case "58": case "59":
-                    rgbValue = "rgb(0,0,255)";
+                    rgbValue = "rgb(100,100,255)";
                     break;
                 // 霧
                 case "43": case "44": case "45": case "46":
@@ -186,15 +186,25 @@ $(document).ready(function () {
             "dataType": {
                 "Wx":
                 {
-                    "name": "天氣型態", "calValue": "parameterValue", "popup": [{ "value": "parameterName" }]
+                    "name": "天氣型態"
+                    , "showInMenu": true
+                    , "calValue": "parameterValue"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.Wx
                 }
                 , "MaxT": {
-                    "name": "最高溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
+                    "name": "最高溫"
+                    , "showInMenu": true
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.T
+
                 }
                 , "MinT": {
-                    "name": "最低溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
+                    "name": "最低溫"
+                    , "showInMenu": true
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.T
                 }
             }
@@ -204,20 +214,37 @@ $(document).ready(function () {
             "county": "false",
             "dataType": {
                 "Wx": {
-                    "name": "天氣型態", "calValue": "parameterValue", "popup": [{ "value": "parameterName" }]
+                    "name": "天氣型態"
+                    , "showInMenu": true
+                    , "calValue": "parameterValue"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.Wx
                 }
                 , "MaxT": {
-                    "name": "最高溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
+                    "name": "最高溫"
+                    , "showInMenu": true
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.T
                 }
                 , "MinT": {
-                    "name": "最低溫", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\xB0 C" }]
+                    "name": "最低溫"
+                    , "showInMenu": true
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.T
                 }
-                , "CI": { "name": "舒適程度", "calValue": "parameterName", "popup": [{ "value": "parameterName" }] }
+                , "CI": {
+                    "name": "舒適程度"
+                    , "showInMenu": false
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
+                }
                 , "PoP": {
-                    "name": "降雨機率", "calValue": "parameterName", "popup": [{ "value": "parameterName", "after": "\%" }]
+                    "name": "降雨機率"
+                    , "showInMenu": true
+                    , "calValue": "parameterName"
+                    , "popupValue": "parameterName"
                     , colorMap: colorMapFunction.PoP
                 }
             }
@@ -241,21 +268,34 @@ $(document).ready(function () {
 
 
     //ui ======================
+    // right panel
+    var rightPanel = L.control.sidebar("right_panel", {
+        closeButton: true,
+        autoPan: false,
+        position: "right"
+    });
+    map.addControl(rightPanel);
+
+
+    // data to show
+    var currentDataLength = "1w";
+    var currentDisplayTime = "";
     var countyBoardLayerGroup = L.layerGroup();
     countyBoardLayerGroup.addTo(map);
 
-    var currentDataLength = "36h";
     var sel_dataType = $("#sel_dataType");
     var sel_time = $("#sel_time");
+    var div_panelContent = $("#div_panelContent");
 
     $(".radio_dataLength").click(function () {
         var dataLength = $(this).val();
         currentDataLength = dataLength;
+        currentDisplayTime = "";
         getData(dataLength);
     });
 
     var weatherData = {};
-    getData("36h");
+    getData(currentDataLength);
     //取得資料並繪製縣市區塊
     function getData(dataLength, county) {
         $(".enableWhenLoaded").attr("disabled", true);
@@ -289,7 +329,9 @@ $(document).ready(function () {
         var menuObj = menuItem[dataLength].dataType;
         sel_dataType.empty();
         for (var key in menuObj) {
-            sel_dataType.append("<option value='" + key + "'>" + menuObj[key].name + "</option>");
+            if (menuObj[key].showInMenu) {
+                sel_dataType.append("<option value='" + key + "'>" + menuObj[key].name + "</option>");
+            }
         }
         sel_dataType.trigger("change");
     }
@@ -300,6 +342,10 @@ $(document).ready(function () {
         for (var key in weatherData[currentDataLength]["data"][wxValue]) {
             sel_time.append("<option value='" + key + "'>" + key + "</option>");
         }
+
+        if (currentDisplayTime != "") {
+            sel_time.val(currentDisplayTime);
+        }
         sel_time.trigger("change");
     });
 
@@ -307,34 +353,49 @@ $(document).ready(function () {
         var wxValue = sel_dataType.find("option:selected").val();
         var timeValue = this.value;
 
+        currentDisplayTime = timeValue;
         drawData(wxValue, timeValue);
     });
 
-    function generatePopupContent(county) {
+    function generatePanelContent(county) {
+        div_panelContent.empty();
+
         var data = weatherData[currentDataLength]["data"];
 
-        var displayObj = {};
+        var showItem = menuItem[currentDataLength]["dataType"]
+        var resultTable = "<table class='table_popup'><tbody><tr><td>時間</td>";
+        for (var key in showItem) {
+            resultTable += "<td>" + showItem[key]["name"] + "</td>";
+        }
+        resultTable += "</tr>";
 
-        for (var wx in data) {
-            var calValue = menuItem[currentDataLength]["dataType"][wx]["calValue"];
-            var showValue = menuItem[currentDataLength]["dataType"][wx]["popup"]["value"];
-            for (var time in data[wx]) {
-                var dataValue = data[wx][time][county][calValue];
-                var popUpValue = data[wx][time][county][showValue];
-                var backgroundColor = fillColorFunction(dataValue);
+        for (var i = 0, ii = weatherData[currentDataLength]["timeList"].length; i < ii; i++) {
+            var time = weatherData[currentDataLength]["timeList"][i];
+            resultTable += "<tr><td>" + time + "</td>";
+            for (var wxValue in showItem) {
 
-                if (!displayObj[time]){
-                    displayObj[time] = {};
+                var calValue = menuItem[currentDataLength]["dataType"][wxValue]["calValue"]; // get config in menuItem
+                var popupValue = menuItem[currentDataLength]["dataType"][wxValue]["popupValue"]; // get config in menuItem
+
+                var dataValue = data[wxValue][time][county][calValue]; // get value in data;
+                var showValue = data[wxValue][time][county][popupValue]; // get show value in data;
+
+                var fillColorFunction = menuItem[currentDataLength]["dataType"][wxValue]["colorMap"];
+                if (fillColorFunction) {
+                    resultTable += "<td style='background-color:" + fillColorFunction(dataValue) + ";'>" + showValue + "</td>";
+                } else {
+                    resultTable += "<td>" + showValue + "</td>";
                 }
-                if (!displayObj[time][wx]){
-                    displayObj[time][wx] = {};
-                }
-                displayObj[time][wx]["value"]=popUpValue;
-                displayObj[time][wx]["color"]=backgroundColor;
+
+
             }
+            resultTable += "</tr>";
         }
 
+        resultTable += "</tbody></table>";
 
+        div_panelContent.append("<label class='popup_title'>" + county + "</label></br>" + resultTable);
+        //return resultTable;
     }
 
     function drawData(wxValue, timeValue) {
@@ -353,9 +414,23 @@ $(document).ready(function () {
                     dashArray: '3',
                     fillOpacity: 0.7,
                     fillColor: fillColorFunction(dataValue)
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        click: function (e) {
+                            generatePanelContent(feature.properties.COUNTYNAME);
+                            rightPanel.show();
+                        }
+                    });
                 }
             });
-            geojsonLayer.bindPopup(generatePopupContent(key));
+            // geojsonLayer.bindPopup(generatePanelContent(key),{"width":"350px"});
+            // geojsonLayer.on("click", function (e) {
+            //     e.originalEvent.preventDefault();
+            //     e.originalEvent.stopPropagation();
+            //     generatePanelContent(key);
+            //     rightPanel.show();
+            // });
             countyBoardLayerGroup.addLayer(geojsonLayer);
         }
     }

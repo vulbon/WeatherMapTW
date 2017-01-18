@@ -13,20 +13,21 @@
     <meta name="keywords" content="天氣,預報,地圖,opendata">
     <meta name="description" conetent="用Opendata資料與地圖的結合，可觀看未來幾天天氣，好天氣壞天氣一目了然，輔助判別出遊縣市。">
     <link rel="stylesheet" href="style/leaflet.css" />
-    <!--<link rel="stylesheet" href="style/leaflet.sidebar.min.css" />-->
+    <link rel="stylesheet" href="style/leaflet.sidebar.min.css" />
     <link rel="stylesheet" href="style/map.css" />
 </head>
 
 <body>
     <div id="map"></div>
     <div id="menu">
-        <input type="radio" id="radio_dataLength_36h" class="radio_dataLength enableWhenLoaded leftIndent" value="36h" name="radio_dataLength"
+        <input type="radio" id="radio_dataLength_1w" class="radio_dataLength enableWhenLoaded" value="1w" name="radio_dataLength"
             checked disabled>
+        <label for="radio_dataLength_1w">一週</label>
+        <input type="radio" id="radio_dataLength_36h" class="radio_dataLength enableWhenLoaded leftIndent" value="36h" name="radio_dataLength"
+            disabled>
         <label for="radio_dataLength_36h">36小時</label>
         <!--<input type="radio" id="radio_dataLength_2d" value="2d" name="radio_dataLength">-->
-        <input type="radio" id="radio_dataLength_1w" class="radio_dataLength enableWhenLoaded" value="1w" name="radio_dataLength"
-            disabled>
-        <label for="radio_dataLength_1w">一週</label>
+
         <label class="leftIndent"> 預報總類：</label>
         <select id="sel_dataType" class="enableWhenLoaded" disabled></select>
         <span id="span_loader"></span>
@@ -34,13 +35,17 @@
         <label class="leftIndent"> 預報時間：</label>
         <select id="sel_time" class="enableWhenLoaded" disabled></select>
     </div>
+    <div id="right_panel">
+        <div id="div_panelContent">
+            </div>
+    </div>
     <div id="colorBar">
-        
+
     </div>
 </body>
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="js/leaflet.min.js"></script>
-<!--<script src="js/leaflet.sidebar.min.js"></script>-->
+<script src="js/leaflet.sidebar.min.js"></script>
 <script src="js/app.js"></script>
 <script>
     (function (i, s, o, g, r, a, m) {

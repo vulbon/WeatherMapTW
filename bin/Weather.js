@@ -1,8 +1,12 @@
 var xml2json = require("xml2js").parseString;
 var async = require("async");
 var request = require("request");
+var moment = require("moment");
 
 var Common = require("./Common");
+
+
+moment.locale("zh-tw");
 
 var Weather = {};
 // fcode => http://opendata.cwb.gov.tw/datalist
@@ -114,9 +118,22 @@ function dataRearrange(url, object, callback) {
                 var wxName = wx[j].elementName[0].replace(/\n|\s/g, '');
                 var time = wx[j].time;
                 for (var k = 0, kk = time.length; k < kk; k++) {
-                    var dataTime = time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3)
-                        + "~" +
-                        time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3);
+                    var startTime = moment(time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3));
+                    //var endTime = mement(time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3));
+
+                    //var dataTime = moment(time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3)).format("dd");
+                    var dataTime = "(" + startTime.format("dd") + ")";
+                    dataTime += startTime.format("YYYY-MM-DD");
+
+                    if (startTime.hour() >= 18) { // night
+                        dataTime += "夜";
+                    } else {
+                        dataTime += "日";
+                    }
+
+
+                    // + "~" +
+                    // time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3);
 
                     if (!data[wxName]) {
                         data[wxName] = {};
@@ -136,10 +153,10 @@ function dataRearrange(url, object, callback) {
                 }
             }
         }
-        // output.timeList = [];
-        // for (var key in data) {
-        //     output.timeList.push(key);
-        // }
+        output.timeList = [];
+        for (var key in data["Wx"]) {
+            output.timeList.push(key);
+        }
         output.data = data;
         callback(null, output);
     } else {
