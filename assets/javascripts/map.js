@@ -417,7 +417,7 @@ $(document).ready(function () {
                 },
                 onEachFeature: function (feature, layer) {
                     layer.on({
-                        click: function (e) {
+                        contextmenu: function (e) {
                             generatePanelContent(feature.properties.COUNTYNAME);
                             rightPanel.show();
                         }
