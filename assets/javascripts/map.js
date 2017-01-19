@@ -363,7 +363,7 @@ $(document).ready(function () {
         var data = weatherData[currentDataLength]["data"];
 
         var showItem = menuItem[currentDataLength]["dataType"]
-        var resultTable = "<table class='table_popup'><tbody><tr><td>時間</td>";
+        var resultTable = "<table class='table_popup'><tbody><tr><td style='width:100px;'>時間</td>";
         for (var key in showItem) {
             resultTable += "<td>" + showItem[key]["name"] + "</td>";
         }
@@ -371,7 +371,12 @@ $(document).ready(function () {
 
         for (var i = 0, ii = weatherData[currentDataLength]["timeList"].length; i < ii; i++) {
             var time = weatherData[currentDataLength]["timeList"][i];
-            resultTable += "<tr><td>" + time + "</td>";
+            resultTable += "<tr>";
+            if (time.indexOf("夜") > -1) {
+                resultTable += "<td style='background-color:#dddddd;'>" + time + "</td>";
+            } else {
+                resultTable += "<td>" + time + "</td>";
+            }
             for (var wxValue in showItem) {
 
                 var calValue = menuItem[currentDataLength]["dataType"][wxValue]["calValue"]; // get config in menuItem
