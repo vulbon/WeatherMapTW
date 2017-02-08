@@ -119,21 +119,14 @@ function dataRearrange(url, object, callback) {
                 var time = wx[j].time;
                 for (var k = 0, kk = time.length; k < kk; k++) {
                     var startTime = moment(time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3));
-                    //var endTime = mement(time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3));
-
-                    //var dataTime = moment(time[k].startTime[0].replace('T', ' ').split('+')[0].slice(0, -3)).format("dd");
                     var dataTime = "(" + startTime.format("dd") + ")";
                     dataTime += startTime.format("YYYY-MM-DD");
 
-                    if (startTime.hour() >= 18) { // night
+                    if (startTime.hour() >= 18 || startTime.hour() < 8) { // night
                         dataTime += "夜";
                     } else {
                         dataTime += "日";
                     }
-
-
-                    // + "~" +
-                    // time[k].endTime[0].replace('T', ' ').split('+')[0].slice(0, -3);
 
                     if (!data[wxName]) {
                         data[wxName] = {};
