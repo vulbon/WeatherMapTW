@@ -9,12 +9,12 @@ var minifyCss = require('gulp-minify-css');
 var webserver = require("gulp-webserver");
 var htmlmin = require("gulp-htmlmin");
 
-
-if (process.env.NODE_ENV === "production") {
-    gulp.task('default', ['map', 'sass', "html"]);
-} else {
-    gulp.task('default', ['map', 'sass', "html", 'webserver', 'watch']);
-}
+gulp.task('default', ['map', 'sass', "html"]);
+// if (process.env.NODE_ENV === "production") {
+//     gulp.task('default', ['map', 'sass', "html"]);
+// } else {
+//     gulp.task('default', ['map', 'sass', "html", 'webserver', 'watch']);
+// }
 
 // map.js task
 gulp.task('map', function () {

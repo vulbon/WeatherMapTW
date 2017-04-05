@@ -132,15 +132,15 @@ $(document).ready(function () {
             switch (value) {
                 // 晴天，多雲
                 case "1": case "2": case "7": case "8":
-                    rgbValue = "rgb(255,200,50)";
+                    rgbValue = "rgb(255,230,90)";
                     break;
                 // 陰天
                 case "3": case "5": case "6":
-                    rgbValue = "rgb(150,150,150)";
+                    rgbValue = "rgb(180,180,180)";
                     break;
                 // 雨天
                 case "4": case "12": case "13": case "17": case "18": case "24": case "26": case "31": case "34": case "36": case "49": case "57": case "58": case "59":
-                    rgbValue = "rgb(100,100,255)";
+                    rgbValue = "rgb(140,140,255)";
                     break;
                 // 霧
                 case "43": case "44": case "45": case "46":
@@ -363,9 +363,13 @@ $(document).ready(function () {
         var data = weatherData[currentDataLength]["data"];
 
         var showItem = menuItem[currentDataLength]["dataType"]
-        var resultTable = "<table class='table_popup'><tbody><tr><td style='width:100px;'>時間</td>";
+        var resultTable = "<table class='table_popup'><tbody><tr><td class='table_popup_row_time'>時間</td>";
         for (var key in showItem) {
-            resultTable += "<td>" + showItem[key]["name"] + "</td>";
+            if (showItem[key]["name"].indexOf("溫") > -1) {
+                resultTable += "<td class='table_popup_row_temperature'>" + showItem[key]["name"] + "</td>";
+            } else {
+                resultTable += "<td>" + showItem[key]["name"] + "</td>";
+            }
         }
         resultTable += "</tr>";
 

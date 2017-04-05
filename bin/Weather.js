@@ -123,9 +123,9 @@ function dataRearrange(url, object, callback) {
                     dataTime += startTime.format("YYYY-MM-DD");
 
                     if (startTime.hour() >= 6 && startTime.hour() < 18) {
-                        dataTime += "日";
+                        dataTime += "日"; // sun
                     } else {
-                        dataTime += "夜";
+                        dataTime += "夜"; //moon
                     }
 
                     if (!data[wxName]) {
