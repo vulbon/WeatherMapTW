@@ -51,10 +51,11 @@ app.get(["/api/:name", "/api/:name/*"], function (req, res) {
 });
 
 //proxy
-app.get(["/:name"], function (req, res) {
-    var name = req.params.name.toLowerCase();
+app.get(["/proxy"], function (req, res) {
+    //var name = req.params.name.toLowerCase();
     //var query = req.query;
-    if (name == "proxy" && req.url.indexOf("proxy?") > -1) {
+    // if (name == "proxy" && req.url.indexOf("proxy?") > -1) {
+    if (req.url.indexOf("proxy?") > -1) {
         var url = req.url.replace("/proxy?", "");
         Common.logWithDatetime("proxy", url);
         req.pipe(request({
@@ -74,6 +75,7 @@ app.get(["/:name"], function (req, res) {
     }
 });
 
+// static files in public
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 43200000 }));
 
 //catch 404 and forward to error handler
