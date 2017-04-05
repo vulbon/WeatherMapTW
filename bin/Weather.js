@@ -122,10 +122,10 @@ function dataRearrange(url, object, callback) {
                     var dataTime = "(" + startTime.format("dd") + ")";
                     dataTime += startTime.format("YYYY-MM-DD");
 
-                    if (startTime.hour() >= 18 && startTime.hour() < 8) { // night
-                        dataTime += "夜";
-                    } else {
+                    if (startTime.hour() >= 6 && startTime.hour() < 18) {
                         dataTime += "日";
+                    } else {
+                        dataTime += "夜";
                     }
 
                     if (!data[wxName]) {
